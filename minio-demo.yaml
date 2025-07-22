@@ -1,0 +1,75 @@
+kind: volumeset
+name: minio-data
+description: minio-data
+spec:
+  fileSystemType: ext4
+  initialCapacity: 10
+  performanceClass: general-purpose-ssd
+---
+kind: workload
+name: minio
+description: minio
+spec:
+  type: stateful
+  containers:
+    - name: nginx
+      image: nginx:alpine
+      cpu: 50m
+      memory: 50Mi
+      ports:
+        - number: 80
+    - name: minio
+      image: 'minio/minio:latest'
+      cpu: 80m
+      memory: 576Mi
+      env:
+        - name: MINIO_ROOT_USER
+          value: minioadmin
+        - name: MINIO_ROOT_PASSWORD
+          value: minioadmin
+        - name: MINIO_OPTS
+          value: "--console-address :9001"
+      ports:
+        - number: 9001
+        - number: 9000
+      args:
+        - server
+        - /data
+        - '--console-address'
+        - ':9001'
+      volumes:
+        - path: /data
+          uri: 'cpln://volumeset/minio-data'
+          recoveryPolicy: retain
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          httpHeaders: []
+          path: /minio/health/ready
+          port: 9000
+          scheme: HTTP
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+  defaultOptions:
+    autoscaling:
+      maxConcurrency: 0
+      maxScale: 1
+      metric: disabled
+      minScale: 1
+      scaleToZeroDelay: 300
+      target: 95 
+    capacityAI: false
+    debug: false
+    suspend: false
+    timeoutSeconds: 5
+  firewallConfig:
+    external:
+      inboundAllowCIDR:
+        - 0.0.0.0/0
+      outboundAllowCIDR:
+        - 0.0.0.0/0
+    internal:
+      inboundAllowType: same-org
+
