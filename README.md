@@ -2,6 +2,8 @@
 [minio](https://min.io/) is and S3 compatible storage solution.  
 [ControlPlane](https://controlplane.com) is a multi-cloud platform.
 This demo deploys a workload that runs minio in a single ControlPlane GVC.
+## YouTube Demo
+[![MinIO in ControlPlane.com Demo](https://img.youtube.com/vi/H3ghTttSLuM/0.jpg)](https://www.youtube.com/watch?v=H3ghTttSLuM)
 
 # Prep
 ## ControlPlane CLI
